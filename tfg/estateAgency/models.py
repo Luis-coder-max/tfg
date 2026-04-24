@@ -1,7 +1,5 @@
 from django.db import models
 
-
-# 🔴 SOURCE (portales)
 class Source(models.Model):
     name = models.CharField(max_length=100, unique=True)
     base_url = models.URLField(blank=True, null=True)
@@ -9,8 +7,6 @@ class Source(models.Model):
     def __str__(self):
         return self.name
 
-
-# 🟡 LOCATION
 class Location(models.Model):
     country = models.CharField(max_length=100, blank=True, null=True)
     region = models.CharField(max_length=100, blank=True, null=True)
@@ -26,8 +22,6 @@ class Location(models.Model):
     def __str__(self):
         return f"{self.city} ({self.province})"
 
-
-# 🔵 PROPERTY (inmueble base)
 class Property(models.Model):
 
     PROPERTY_TYPE_CHOICES = [
@@ -75,8 +69,6 @@ class Property(models.Model):
     def __str__(self):
         return self.title
 
-
-# 🟢 LISTING (histórico de precios)
 class Listing(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="listings")
 
@@ -97,8 +89,6 @@ class Listing(models.Model):
     def __str__(self):
         return f"{self.property.title} - {self.price}€"
 
-
-# 🟠 FEATURES
 class PropertyFeature(models.Model):
     property = models.OneToOneField(Property, on_delete=models.CASCADE, related_name="features")
 
@@ -119,8 +109,6 @@ class PropertyFeature(models.Model):
     def __str__(self):
         return f"Features of {self.property.title}"
 
-
-# 🤖 PREDICTIONS
 class Prediction(models.Model):
     property = models.ForeignKey(Property, null=True, blank=True, on_delete=models.SET_NULL)
     location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL)
@@ -133,8 +121,6 @@ class Prediction(models.Model):
     def __str__(self):
         return f"Prediction {self.predicted_price}€"
 
-
-# 📊 AREA STATS
 class AreaStats(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="stats")
 
@@ -150,8 +136,6 @@ class AreaStats(models.Model):
     def __str__(self):
         return f"Stats {self.location.city} - {self.date}"
 
-
-# 🧾 SCRAPING LOG
 class ScrapingLog(models.Model):
     STATUS_CHOICES = [
         ('success', 'Success'),
