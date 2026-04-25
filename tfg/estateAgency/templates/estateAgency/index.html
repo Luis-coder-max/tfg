@@ -4,127 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>prediocciones inmobiliarias</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        /* Estilos básicos para el cuerpo y el contenedor principal */
-        body {
-            background-color: linear-gradient(135deg, #ffcc70, #ff8c42);
-            color: #333;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            overflow: hidden;
-        }
-        /* Estilos para el encabezado */
-        header {
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding-top: 20px;
-            text-align: center;
-        }
-        header h1 {
-           font-size: 2rem;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 60px 20px;
-            color: white;
-        }
-
-        .hero h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .search-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .search-box select, .search-box input, .search-box button {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            flex: 1;
-        }
-        
-        .search-box button {
-            background: #ff8c42;
-            color: white;
-            cursor: pointer;
-        }
-
-        .section {
-            padding: 50px 20px;
-            background: rgba(255,255,255,0.9);
-            margin: 20px;
-            border-radius: 10px;
-        }
-        .section h2 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-        }    
-        .card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            width: 300px;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .card:hover {
-            transform: translateY(-10px);
-        }
-        .card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-        .card-content {
-            padding: 15px;
-        }
-
-        .prediction {
-            text-align: center;
-            font-size: 1.2rem;
-            margin-top: 20px;
-        }
-
-        footer {
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-            margin-top: 40px;
-        }
-
-        footer {
-  text-align: center;
-  padding: 20px;
-  color: white;
-  background: rgba(0,0,0,0.7);
-}
-</style>
-
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'estateAgency/css/styles.css' %}">
 </head>
 
 <body>
@@ -208,6 +89,7 @@
 
     <div class="card">
       <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5">
+      <!--<img src="{% static 'estateAgency/img/nombreimagen.jpg' %}">-->
       <div class="card-content">
         <h3>Oportunidades</h3>
         <p>Crecimiento fuerte en destinos emergentes.</p>
@@ -219,31 +101,6 @@
 <footer>
   <p>© 2026 Predicciones Inmobiliarias</p>
 </footer>
-
-<script>
-function predict() {
-  const type = document.getElementById("type").value;
-  const city = document.getElementById("city").value;
-  const result = document.getElementById("result");
-
-  let message = "";
-
-  if (!city) {
-    result.innerHTML = "Introduce una ciudad";
-    return;
-  }
-
-  if (type === "compra") {
-    message = `En ${city}, se espera una subida de precios del 5-8% en los próximos meses.`;
-  } else if (type === "larga") {
-    message = `En ${city}, el alquiler de larga estancia seguirá en alta demanda con subidas moderadas.`;
-  } else {
-    message = `En ${city}, el alquiler de temporada tendrá picos altos en fechas turísticas.`;
-  }
-
-  result.innerHTML = message;
-}
-</script>
 
 </body>
 </html>
