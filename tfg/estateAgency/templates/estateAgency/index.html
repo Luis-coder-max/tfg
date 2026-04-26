@@ -1,18 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predicciones Inmobiliarias</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'estateAgency/css/styles.css' %}">
-</head>
+{% extends 'estateAgency/base.html' %}
 
-<body>
-
-<header>
-  <h1>Predicciones Inmobiliarias</h1>
-</header>
+{% block content %}
 
 <section class="hero">
   <h2>Encuentra el mejor momento para invertir</h2>
@@ -40,37 +28,6 @@
   <h2>Compra</h2>
 
   <canvas id="grafico"></canvas>
-
-  <div class="cards">
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994">
-      <div class="card-content">
-        <h3>Salamanca</h3>
-        <p>Precio: 500000 €</p>
-        <p>Metros: 120 m²</p>
-        <p>Habitaciones: 3</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be">
-      <div class="card-content">
-        <h3>Chamartín</h3>
-        <p>Precio: 420000 €</p>
-        <p>Metros: 95 m²</p>
-        <p>Habitaciones: 2</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae">
-      <div class="card-content">
-        <h3>Vallecas</h3>
-        <p>Precio: 280000 €</p>
-        <p>Metros: 80 m²</p>
-        <p>Habitaciones: 3</p>
-      </div>
-    </div>
 
   <div class="cards">
     <div class="card">
@@ -127,7 +84,7 @@
 
     <div class="card">
       <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5">
-      <!--<img src="{% static 'estateAgency/img/nombreimagen.jpg' %}">-->
+      {# <img src="{% static 'estateAgency/img/nombreimagen.jpg' %}"> #}
       <div class="card-content">
         <h3>Oportunidades</h3>
         <p>Crecimiento fuerte en destinos emergentes.</p>
@@ -136,13 +93,4 @@
   </div>
 </section>
 
-<footer>
-  <p>© 2026 Predicciones Inmobiliarias</p>
-</footer>
-
-</html>        
-  <link rel="stylesheet" href="styles.css">
-</head>
-    <script src="{% static 'estateAgency/js/script.js' %}"></script>
-</body>
-</html>
+{% endblock %}
