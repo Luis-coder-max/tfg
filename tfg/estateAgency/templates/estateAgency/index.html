@@ -17,18 +17,18 @@
 <section class="hero">
   <h2>Encuentra el mejor momento para invertir</h2>
 
-  <div class="search-box">
-    <select id="type">
-      <option value="compra">Compra</option>
-      <option value="larga">Alquiler larga estancia</option>
-      <option value="temporal">Alquiler de temporada</option>
-    </select>
+ <div class="search-box">
+  <select id="type">
+    <option value="compra">Compra</option>
+    <option value="larga">Alquiler larga estancia</option>
+    <option value="temporal">Alquiler de temporada</option>
+  </select>
 
-    <input type="text" id="city" placeholder="Ciudad...">
-    <button onclick="predict()">Analizar</button>
-  </div>
+  <input type="text" id="city" placeholder="Ciudad...">
+  <button type="submit" onclick="predict()">Analizar</button>
+</div>
 
-  <div class="prediction" id="result"></div>
+  <div class="prediction" id="result"> </div>
 </section>
 
 <!-- COMPRA -->
@@ -102,11 +102,9 @@
   <p>© 2026 Predicciones Inmobiliarias</p>
 </footer>
 
-</body>
 </html>        
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
     <script src="{% static 'estateAgency/js/script.js' %}"></script>
 </body>
 </html>
