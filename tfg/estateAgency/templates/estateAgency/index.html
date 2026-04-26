@@ -19,13 +19,17 @@
 
  <div class="search-box">
   <select id="type">
-    <option value="compra">Compra</option>
-    <option value="larga">Alquiler larga estancia</option>
-    <option value="temporal">Alquiler de temporada</option>
+    <option value="sale">Compra</option>
+    <option value="rent_long">Alquiler larga estancia</option>
+    <option value="rent_short">Alquiler de temporada</option>
   </select>
 
-  <input type="text" id="city" placeholder="Ciudad...">
-  <button type="submit" onclick="predict()">Analizar</button>
+  <select id="city">
+      {% for location in locations %}
+        <option value="{{ location.city }}">{{ location.city }}</option>
+      {% endfor %}
+  </select>
+  <button type="text" onclick="predict()">Analizar</button>
 </div>
 
   <div class="prediction" id="result"> </div>
