@@ -1,14 +1,50 @@
-<h1>{% if selected_type == "sale" %}Compra{% elif selected_type == "rent_short" %}Alquiler de temporada{% else %}Alquiler de larga estancia{% endif %} en {{ properties.0.city }}</h1>
-{% for p in properties %}
-  <div class="card">
-    <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994">
-      <div class="card-content">
-        <h3>{{ p.title }}</h3>
-        <p>Precio: {{ p.price }} €</p>
-        <p>Metros: {{ p.size_m2 }} m²</p>
-        <p>Habitaciones: {{ p.rooms }}</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicciones Inmobiliarias</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'estateAgency/css/styles.css' %}">
+</head>
+
+<body>
+
+<header>
+  <h1>Predicciones Inmobiliarias</h1>
+</header>
+
+<!-- COMPRA -->
+<section class="section">
+  <h1>{% if selected_type == "sale" %}Compra{% elif selected_type == "rent_short" %}Alquiler de temporada{% else %}Alquiler de larga estancia{% endif %} en {{ properties.0.city }}</h1>
+
+
+  <canvas id="grafico"></canvas>
+
+  <div class="cards">
+    {% for p in properties %}
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994">
+          <div class="card-content">
+            <h3>{{ p.title }}</h3>
+            <p>Precio: {{ p.price }} €</p>
+            <p>Metros: {{ p.size_m2 }} m²</p>
+            <p>Habitaciones: {{ p.rooms }}</p>
+          </div>
       </div>
+    {% empty %}
+      <p>No hay propiedades</p>
+    {% endfor %}
   </div>
-{% empty %}
-  <p>No hay propiedades</p>
-{% endfor %}
+</section>
+
+<footer>
+  <p>© 2026 Predicciones Inmobiliarias</p>
+</footer>
+
+</html>        
+  <link rel="stylesheet" href="styles.css">
+</head>
+    <script src="{% static 'estateAgency/js/script.js' %}"></script>
+</body>
+</html>
