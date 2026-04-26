@@ -38,7 +38,17 @@ class Property(models.Model):
         ('sale', 'Sale'),
         ('rent', 'Rent'),
     ]
-
+    
+    RENTAL_TYPE_CHOICES = [
+    ('short', 'Short Term'),
+    ('long', 'Long Term'),
+    ]
+    rental_type = models.CharField(
+    max_length=10,
+    choices=RENTAL_TYPE_CHOICES,
+    null=True,
+    blank=True
+    )
     external_id = models.CharField(max_length=100)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)

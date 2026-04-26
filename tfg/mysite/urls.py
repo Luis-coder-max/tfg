@@ -19,6 +19,6 @@ from django.urls import include, path
 from estateAgency import views as estate_views
 
 urlpatterns = [
-    path("estate/", include("estateAgency.urls")),
     path("admin/", admin.site.urls),
+    path("", include("estateAgency.urls")),
 ]

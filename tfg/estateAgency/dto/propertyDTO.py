@@ -23,3 +23,7 @@ class PropertyDTO:
     energy_rating: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    province: Optional[str] = None
+    city: Optional[str] = None
+    price: Optional[Decimal] = None
+    

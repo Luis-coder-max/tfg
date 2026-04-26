@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>prediocciones inmobiliarias</title>
+    <title>Predicciones Inmobiliarias</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'estateAgency/css/styles.css' %}">
 </head>
@@ -19,12 +19,16 @@
 
   <div class="search-box">
     <select id="type">
-      <option value="compra">Compra</option>
-      <option value="larga">Alquiler larga estancia</option>
-      <option value="temporal">Alquiler de temporada</option>
+      <option value="sale">Compra</option>
+      <option value="rent_long">Alquiler larga estancia</option>
+      <option value="rent_short">Alquiler de temporada</option>
     </select>
 
-    <input type="text" id="city" placeholder="Ciudad...">
+    <select id="city">
+      {% for location in locations %}
+        <option value="{{ location.city }}">{{ location.city }}</option>
+      {% endfor %}
+    </select>
     <button onclick="predict()">Analizar</button>
   </div>
 
