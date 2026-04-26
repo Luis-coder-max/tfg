@@ -51,9 +51,21 @@ class Command(BaseCommand):
 
         # 🔵 PROPERTIES
         properties = []
-
-        for i in range(50):
+        operationTypes = []
+        for i in range(120):
             location = random.choice(locations)
+            
+            operation_type = random.choice(["sale", "rent"])
+            operationTypes.append(operation_type)
+            rental_type = None
+            if operation_type == "rent":
+                rental_type = random.choice(["short", "long"])
+            if operation_type == "sale":
+                base_price = random.randint(120000, 500000)
+            elif rental_type == "long":
+                base_price = random.randint(600, 2000)
+            else:  # short
+                base_price = random.randint(50, 200)
 
             prop = Property.objects.create(
                 external_id=f"prop_{i}",
@@ -63,12 +75,13 @@ class Command(BaseCommand):
                 title=f"Piso en {location.city} #{i}",
                 description="Piso bonito y bien ubicado",
                 property_type="flat",
-                operation_type="sale",
+                operation_type=operation_type,
                 rooms=random.randint(1, 5),
                 bathrooms=random.randint(1, 3),
                 size_m2=random.randint(50, 150),
                 floor=str(random.randint(1, 10)),
-                energy_rating=random.choice(["A", "B", "C", "D"])
+                energy_rating=random.choice(["A", "B", "C", "D"]),
+                rental_type=rental_type
             )
 
             properties.append(prop)
@@ -85,17 +98,22 @@ class Command(BaseCommand):
                 ])
             )
 
-            # 🟢 LISTINGS (histórico de precios)
             base_price = random.randint(100000, 500000)
 
-            for j in range(5):  # histórico de 5 precios
+            for j in range(5):
+                if operation_type == "sale":
+                    price = base_price - j * random.randint(1000, 5000)
+                elif rental_type == "long":
+                    price = base_price + random.randint(-100, 100)
+                else:  # short
+                    price = base_price + random.randint(-10, 10)
+
                 Listing.objects.create(
                     property=prop,
-                    price=base_price - j * random.randint(1000, 5000),
-                    price_per_m2=base_price / prop.size_m2,
+                    price=price,
+                    price_per_m2=price / prop.size_m2 if prop.size_m2 else None,
                     published_at=timezone.now() - timedelta(days=30 * j),
                     scraped_at=timezone.now() - timedelta(days=30 * j),
                     is_active=(j == 0)
                 )
-
         self.stdout.write(self.style.SUCCESS("Database seeded successfully!"))

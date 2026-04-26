@@ -1,0 +1,10 @@
+<h1>{% if selected_type == "sale" %}Compra{% elif selected_type == "rent_short" %}Alquiler de temporada{% else %}Alquiler de larga estancia{% endif %} en {{ properties.0.city }}</h1>
+{% for p in properties %}
+  <div>
+    <h3>{{ p.title }}</h3>
+    <p>{{ p.price }} €</p>
+    <p>{{ p.city }} ({{ p.province }})</p>
+  </div>
+{% empty %}
+  <p>No hay propiedades</p>
+{% endfor %}
