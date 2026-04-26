@@ -5,3 +5,16 @@ function predict() {
   redirectUrl = `/properties/?type=${type}&city=${city}`;
   window.location.href = redirectUrl;
 }
+
+function renderChart(labels, data, label) {
+  new Chart(document.getElementById("grafico"), {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: label,
+        data: data
+      }]
+    }
+  });
+}

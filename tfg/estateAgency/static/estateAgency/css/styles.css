@@ -115,3 +115,9 @@ footer {
     color: white;
     background: rgba(0,0,0,0.7);
 }
+
+canvas {
+  max-width: 700px;
+  margin: 30px auto;
+  display: block;
+}
