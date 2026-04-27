@@ -5,10 +5,36 @@
 
 <!-- COMPRA -->
 <section class="section">
-  <h1>{% if selected_type == "sale" %}Compra{% elif selected_type == "rent_short" %}Alquiler de temporada{% else %}Alquiler de larga estancia{% endif %} en {{ properties.0.city }}</h1>
+  <h1>{% if selected_type == "sale" %}Compra{% elif selected_type == "rent_short" %}Alquiler de temporada{% else %}Alquiler de larga estancia{% endif %} en {{ selected_city }}</h1>
 
+  <div class="stats">
+    <div class="stat-card">
+      <span>Precio medio</span>
+      <strong>{{ market_summary.avg_price|default:0|floatformat:2 }} EUR</strong>
+    </div>
 
-  <canvas id="grafico"></canvas>
+    <div class="stat-card">
+      <span>Precio medio/m2</span>
+      <strong>{{ market_summary.avg_price_m2|default:0|floatformat:2 }} EUR/m2</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Anuncios analizados</span>
+      <strong>{{ market_summary.total|default:0 }}</strong>
+    </div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h2 id="priceChartTitle">Precios por vivienda</h2>
+      <canvas id="grafico"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h2>Precio por metro cuadrado</h2>
+      <canvas id="graficoM2"></canvas>
+    </div>
+  </div>
 
   <div class="cards">
     {% for p in properties %}
@@ -26,5 +52,12 @@
     {% endfor %}
   </div>
 </section>
+
+<script>
+  const chartData = JSON.parse('{{ chart_data|escapejs }}');
+  const selectedType = "{{ selected_type }}";
+
+  renderPropertyCharts(chartData, selectedType);
+</script>
 
 {% endblock %}

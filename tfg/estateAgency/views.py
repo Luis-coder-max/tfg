@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views import generic
-from .services import propertyService, locationService
+from .services import propertyService, locationService, chartService
+import json
 
 # Create your views here.
 class IndexView(generic.TemplateView):
@@ -28,8 +29,14 @@ class PropertiesView(generic.TemplateView):
             flag = "sale"
 
         properties = propertyService.get_properties_by_operation(flag, city=city)
+        chart_data = chartService.get_chart_data_by_operation(flag, city=city)
+        market_summary = chartService.get_market_summary(flag, city=city)
 
         context["properties"] = properties
         context["selected_type"] = flag
+        context["selected_city"] = city
+        context["chart_data"] = json.dumps(chart_data)
+        context["market_summary"] = market_summary
+        context["locations"] = locationService.get_all_locations()
 
         return context

@@ -134,6 +134,20 @@ class Prediction(models.Model):
 class AreaStats(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="stats")
 
+    OPERATION_TYPE_CHOICES = [
+        ('sale', 'Sale'),
+        ('rent', 'Rent'),
+    ]
+
+    RENTAL_TYPE_CHOICES = [
+        ('', 'No rental'),
+        ('short', 'Short Term'),
+        ('long', 'Long Term'),
+    ]
+
+    operation_type = models.CharField(max_length=10, choices=OPERATION_TYPE_CHOICES, default="sale")
+    rental_type = models.CharField(max_length=10, choices=RENTAL_TYPE_CHOICES, blank=True, default="")
+
     avg_price = models.DecimalField(max_digits=12, decimal_places=2)
     avg_price_m2 = models.DecimalField(max_digits=12, decimal_places=2)
     num_properties = models.IntegerField()
@@ -141,10 +155,10 @@ class AreaStats(models.Model):
     date = models.DateField()
 
     class Meta:
-        unique_together = ('location', 'date')
+        unique_together = ('location', 'date', 'operation_type', 'rental_type')
 
     def __str__(self):
-        return f"Stats {self.location.city} - {self.date}"
+        return f"Stats {self.location.city} - {self.operation_type} - {self.rental_type} - {self.date}"
 
 class ScrapingLog(models.Model):
     STATUS_CHOICES = [
