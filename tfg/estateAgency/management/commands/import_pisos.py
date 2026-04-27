@@ -1,16 +1,15 @@
 import unicodedata
+from decimal import Decimal
+import hashlib
 
 from django.core.management.base import BaseCommand
 from estateAgency.models import Source, Location, Property, Listing, ScrapingLog
 from estateAgency.services.scraping.pisos_scraper import PisosScraper
 
+def make_external_id(url):
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()
 
 def slugify_for_pisos(value):
-    """
-    Convierte nombres tipo:
-    'Madrid Capital' -> 'madrid_capital'
-    'A Coruña' -> 'a_coruna'
-    """
     value = value.lower().strip()
     value = unicodedata.normalize("NFKD", value)
     value = value.encode("ascii", "ignore").decode("ascii")
@@ -19,25 +18,23 @@ def slugify_for_pisos(value):
     return value
 
 
-def build_pisos_url(location, operation):
-    """
-    Genera la URL de pisos.com según la localización.
-    De momento prioriza ciudad.
-    """
-
+def build_pisos_url(location, operation, rentType=None):
     city_slug = slugify_for_pisos(location.city)
 
     if operation == "sale":
         return f"https://www.pisos.com/venta/pisos-{city_slug}/"
 
     if operation == "rent":
-        return f"https://www.pisos.com/alquiler/pisos-{city_slug}/"
+        if rentType == "short":
+            return f"https://www.pisos.com/alquiler-temporada/pisos-{city_slug}/"
+        if rentType == "long":
+            return f"https://www.pisos.com/alquiler-residencia/pisos-{city_slug}/"
 
     raise ValueError(f"Operación no válida: {operation}")
 
 
 class Command(BaseCommand):
-    help = "Importa viviendas reales desde pisos.com para todas las localizaciones de la base de datos"
+    help = "Importa viviendas desde pisos.com evitando duplicidades"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -50,12 +47,19 @@ class Command(BaseCommand):
             choices=["short", "long"],
             default=None
         )
-        parser.add_argument("--limit", type=int, default=10)
+        parser.add_argument("--limit", type=int, default=15)
 
         parser.add_argument(
             "--city",
             required=False,
             help="Opcional. Scrapea solo una ciudad concreta"
+        )
+
+        parser.add_argument(
+            "--max-duplicates",
+            type=int,
+            default=5,
+            help="Corta el scraping de una ciudad tras X duplicados seguidos"
         )
 
     def handle(self, *args, **options):
@@ -77,11 +81,12 @@ class Command(BaseCommand):
             locations = locations.filter(city__iexact=options["city"])
 
         total_imported = 0
-        total_locations = locations.count()
+        total_updated = 0
+        total_skipped = 0
 
         self.stdout.write(
             self.style.WARNING(
-                f"Iniciando scraping de pisos.com para {total_locations} localizaciones"
+                f"Iniciando scraping para {locations.count()} localizaciones"
             )
         )
 
@@ -91,9 +96,7 @@ class Command(BaseCommand):
                 operation=options["operation"]
             )
 
-            self.stdout.write(
-                f"Scrapeando {location.city} -> {url}"
-            )
+            self.stdout.write(f"Scrapeando {location.city} -> {url}")
 
             try:
                 scraped_properties = scraper.scrape(
@@ -103,13 +106,17 @@ class Command(BaseCommand):
                 )
 
                 imported = 0
+                updated = 0
+                skipped = 0
+                duplicates_in_row = 0
 
                 for item in scraped_properties:
                     if not item.price:
+                        skipped += 1
                         continue
 
                     prop, created = Property.objects.get_or_create(
-                        external_id=item.url,
+                        external_id=make_external_id(item.url),
                         source=source,
                         defaults={
                             "location": location,
@@ -124,33 +131,79 @@ class Command(BaseCommand):
                         }
                     )
 
-                    Listing.objects.create(
-                        property=prop,
-                        price=item.price,
-                        price_per_m2=(
-                            item.price / item.size_m2
-                            if item.size_m2
-                            else None
-                        ),
-                        is_active=True,
+                    price = Decimal(str(item.price))
+
+                    price_per_m2 = None
+                    if item.size_m2:
+                        price_per_m2 = price / Decimal(str(item.size_m2))
+
+                    if created:
+                        Listing.objects.create(
+                            property=prop,
+                            price=price,
+                            price_per_m2=price_per_m2,
+                            is_active=True,
+                        )
+
+                        imported += 1
+                        duplicates_in_row = 0
+                        continue
+
+                    duplicates_in_row += 1
+
+                    latest_listing = (
+                        Listing.objects
+                        .filter(property=prop, is_active=True)
+                        .order_by("-id")
+                        .first()
                     )
 
-                    imported += 1
+                    if latest_listing and latest_listing.price == price:
+                        skipped += 1
+                    else:
+                        if latest_listing:
+                            latest_listing.is_active = False
+                            latest_listing.save(update_fields=["is_active"])
+
+                        Listing.objects.create(
+                            property=prop,
+                            price=price,
+                            price_per_m2=price_per_m2,
+                            is_active=True,
+                        )
+
+                        updated += 1
+
+                    if duplicates_in_row >= options["max_duplicates"]:
+                        self.stdout.write(
+                            self.style.WARNING(
+                                f"{location.city}: corte por "
+                                f"{duplicates_in_row} duplicados seguidos"
+                            )
+                        )
+                        break
 
                 total_imported += imported
+                total_updated += updated
+                total_skipped += skipped
 
                 ScrapingLog.objects.create(
                     source=source,
                     status="success",
                     message=(
-                        f"Importadas {imported} viviendas desde pisos.com "
-                        f"para {location.city}"
+                        f"{location.city}: "
+                        f"{imported} nuevas, "
+                        f"{updated} actualizadas, "
+                        f"{skipped} omitidas"
                     )
                 )
 
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f"{location.city}: importadas {imported} viviendas"
+                        f"{location.city}: "
+                        f"{imported} nuevas, "
+                        f"{updated} actualizadas, "
+                        f"{skipped} omitidas"
                     )
                 )
 
@@ -171,6 +224,9 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Scraping terminado. Total importadas: {total_imported}"
+                f"Scraping terminado. "
+                f"Nuevas: {total_imported}, "
+                f"Actualizadas: {total_updated}, "
+                f"Omitidas: {total_skipped}"
             )
         )
