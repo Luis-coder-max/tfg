@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.views import generic
 from .services import propertyService, locationService, chartService
+from django.http import JsonResponse
+from django.core.cache import cache
 import json
 
 # Create your views here.
@@ -40,3 +42,8 @@ class PropertiesView(generic.TemplateView):
         context["locations"] = locationService.get_all_locations()
 
         return context
+
+def scraping_status(request):
+    return JsonResponse({
+        "running": bool(cache.get("pisos_scraping_running"))
+    })

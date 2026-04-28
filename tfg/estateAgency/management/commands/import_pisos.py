@@ -1,3 +1,4 @@
+from django.core.cache import cache
 import unicodedata
 from decimal import Decimal
 import hashlib
@@ -17,6 +18,17 @@ def slugify_for_pisos(value):
     value = value.replace("-", "_")
     return value
 
+def detect_property_type(title):
+    title = title.lower()
+
+    if any(word in title for word in ["piso", "apartamento", "ático", "estudio", "loft", "duplex", "planta baja"]):
+        return "flat"
+
+    if any(word in title for word in ["casa", "chalet", "adosado", "villa", "unifamiliar", "pareado", "cortijo", "masía"]):
+        return "house"
+
+    return "unknown"
+
 
 def build_pisos_url(location, operation, rentType=None):
     city_slug = slugify_for_pisos(location.city)
@@ -28,7 +40,9 @@ def build_pisos_url(location, operation, rentType=None):
         if rentType == "short":
             return f"https://www.pisos.com/alquiler-temporada/pisos-{city_slug}/"
         if rentType == "long":
-            return f"https://www.pisos.com/alquiler-residencia/pisos-{city_slug}/"
+            return f"https://www.pisos.com/alquiler-residencial/pisos-{city_slug}/"
+        else:
+            raise ValueError(f"Tipo de alquiler no válido: {rentType}")
 
     raise ValueError(f"Operación no válida: {operation}")
 
@@ -63,170 +77,179 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        source, _ = Source.objects.get_or_create(
-            name="pisos.com",
-            defaults={"base_url": "https://www.pisos.com"}
-        )
+        from django.core.cache import cache
 
-        scraper = PisosScraper(delay=2)
-
-        locations = (
-            Location.objects
-            .filter(country__iexact="Spain")
-            .exclude(city__isnull=True)
-            .exclude(city="")
-        )
-
-        if options.get("city"):
-            locations = locations.filter(city__iexact=options["city"])
-
-        total_imported = 0
-        total_updated = 0
-        total_skipped = 0
-
-        self.stdout.write(
-            self.style.WARNING(
-                f"Iniciando scraping para {locations.count()} localizaciones"
-            )
-        )
-
-        for location in locations:
-            url = build_pisos_url(
-                location=location,
-                operation=options["operation"]
+        cache.set("pisos_scraping_running", True, timeout=60 * 60 * 3)
+        try:
+            source, _ = Source.objects.get_or_create(
+                name="pisos.com",
+                defaults={"base_url": "https://www.pisos.com"}
             )
 
-            self.stdout.write(f"Scrapeando {location.city} -> {url}")
+            scraper = PisosScraper(delay=2)
 
-            try:
-                scraped_properties = scraper.scrape(
-                    search_url=url,
-                    city=location.city,
-                    limit=options["limit"],
+            locations = (
+                Location.objects
+                .filter(country__iexact="Spain")
+                .exclude(city__isnull=True)
+                .exclude(city="")
+            )
+
+            if options.get("city"):
+                locations = locations.filter(city__iexact=options["city"])
+
+            total_imported = 0
+            total_updated = 0
+            total_skipped = 0
+
+            self.stdout.write(
+                self.style.WARNING(
+                    f"Iniciando scraping para {locations.count()} localizaciones"
+                )
+            )
+
+            for location in locations:
+                url = build_pisos_url(
+                    location=location,
+                    operation=options["operation"],
+                    rentType=options["rental_type"]
                 )
 
-                imported = 0
-                updated = 0
-                skipped = 0
-                duplicates_in_row = 0
+                self.stdout.write(f"Scrapeando {location.city} -> {url}")
 
-                for item in scraped_properties:
-                    if not item.price:
-                        skipped += 1
-                        continue
-
-                    prop, created = Property.objects.get_or_create(
-                        external_id=make_external_id(item.url),
-                        source=source,
-                        defaults={
-                            "location": location,
-                            "url": item.url,
-                            "title": item.title,
-                            "description": "Vivienda importada desde pisos.com",
-                            "property_type": "flat",
-                            "operation_type": options["operation"],
-                            "rental_type": options["rental_type"],
-                            "rooms": item.rooms,
-                            "size_m2": item.size_m2,
-                        }
+                try:
+                    scraped_properties = scraper.scrape(
+                        search_url=url,
+                        city=location.city,
+                        limit=options["limit"],
                     )
 
-                    price = Decimal(str(item.price))
+                    imported = 0
+                    updated = 0
+                    skipped = 0
+                    duplicates_in_row = 0
 
-                    price_per_m2 = None
-                    if item.size_m2:
-                        price_per_m2 = price / Decimal(str(item.size_m2))
+                    for item in scraped_properties:
+                        if not item.price:
+                            skipped += 1
+                            continue
 
-                    if created:
-                        Listing.objects.create(
-                            property=prop,
-                            price=price,
-                            price_per_m2=price_per_m2,
-                            is_active=True,
+                        prop, created = Property.objects.get_or_create(
+                            external_id=make_external_id(item.url),
+                            source=source,
+                            defaults={
+                                "location": location,
+                                "url": item.url,
+                                "title": item.title,
+                                "description": "Vivienda importada desde pisos.com",
+                                "property_type": detect_property_type(item.title),
+                                "operation_type": options["operation"],
+                                "rental_type": options["rental_type"],
+                                "rooms": item.rooms,
+                                "bathrooms": item.bathrooms,
+                                "floor": item.floor,
+                                "size_m2": item.size_m2,
+                            }
                         )
 
-                        imported += 1
-                        duplicates_in_row = 0
-                        continue
+                        price = Decimal(str(item.price))
 
-                    duplicates_in_row += 1
+                        price_per_m2 = None
+                        if item.size_m2:
+                            price_per_m2 = price / Decimal(str(item.size_m2))
 
-                    latest_listing = (
-                        Listing.objects
-                        .filter(property=prop, is_active=True)
-                        .order_by("-id")
-                        .first()
-                    )
-
-                    if latest_listing and latest_listing.price == price:
-                        skipped += 1
-                    else:
-                        if latest_listing:
-                            latest_listing.is_active = False
-                            latest_listing.save(update_fields=["is_active"])
-
-                        Listing.objects.create(
-                            property=prop,
-                            price=price,
-                            price_per_m2=price_per_m2,
-                            is_active=True,
-                        )
-
-                        updated += 1
-
-                    if duplicates_in_row >= options["max_duplicates"]:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"{location.city}: corte por "
-                                f"{duplicates_in_row} duplicados seguidos"
+                        if created:
+                            Listing.objects.create(
+                                property=prop,
+                                price=price,
+                                price_per_m2=price_per_m2,
+                                is_active=True,
                             )
+
+                            imported += 1
+                            duplicates_in_row = 0
+                            continue
+
+                        duplicates_in_row += 1
+
+                        latest_listing = (
+                            Listing.objects
+                            .filter(property=prop, is_active=True)
+                            .order_by("-id")
+                            .first()
                         )
-                        break
 
-                total_imported += imported
-                total_updated += updated
-                total_skipped += skipped
+                        if latest_listing and latest_listing.price == price:
+                            skipped += 1
+                        else:
+                            if latest_listing:
+                                latest_listing.is_active = False
+                                latest_listing.save(update_fields=["is_active"])
 
-                ScrapingLog.objects.create(
-                    source=source,
-                    status="success",
-                    message=(
-                        f"{location.city}: "
-                        f"{imported} nuevas, "
-                        f"{updated} actualizadas, "
-                        f"{skipped} omitidas"
+                            Listing.objects.create(
+                                property=prop,
+                                price=price,
+                                price_per_m2=price_per_m2,
+                                is_active=True,
+                            )
+
+                            updated += 1
+
+                        if duplicates_in_row >= options["max_duplicates"]:
+                            self.stdout.write(
+                                self.style.WARNING(
+                                    f"{location.city}: corte por "
+                                    f"{duplicates_in_row} duplicados seguidos"
+                                )
+                            )
+                            break
+                    total_imported += imported
+                    total_updated += updated
+                    total_skipped += skipped
+
+                    ScrapingLog.objects.create(
+                        source=source,
+                        status="success",
+                        message=(
+                            f"{location.city}: "
+                            f"{imported} nuevas, "
+                            f"{updated} actualizadas, "
+                            f"{skipped} omitidas"
+                        )
                     )
-                )
 
-                self.stdout.write(
-                    self.style.SUCCESS(
-                        f"{location.city}: "
-                        f"{imported} nuevas, "
-                        f"{updated} actualizadas, "
-                        f"{skipped} omitidas"
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"{location.city}: "
+                            f"{imported} nuevas, "
+                            f"{updated} actualizadas, "
+                            f"{skipped} omitidas"
+                        )
                     )
-                )
 
-            except Exception as error:
-                ScrapingLog.objects.create(
-                    source=source,
-                    status="error",
-                    message=f"Error en {location.city}: {str(error)}"
-                )
-
-                self.stdout.write(
-                    self.style.ERROR(
-                        f"Error scrapeando {location.city}: {error}"
+                except Exception as error:
+                    ScrapingLog.objects.create(
+                        source=source,
+                        status="error",
+                        message=f"Error en {location.city}: {str(error)}"
                     )
+
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f"Error scrapeando {location.city}: {error}"
+                        )
+                    )
+
+                    continue
+
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Scraping terminado. "
+                    f"Nuevas: {total_imported}, "
+                    f"Actualizadas: {total_updated}, "
+                    f"Omitidas: {total_skipped}"
                 )
-
-                continue
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Scraping terminado. "
-                f"Nuevas: {total_imported}, "
-                f"Actualizadas: {total_updated}, "
-                f"Omitidas: {total_skipped}"
             )
-        )
+
+        finally:
+            cache.delete("pisos_scraping_running")

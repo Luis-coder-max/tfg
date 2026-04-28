@@ -95,3 +95,29 @@ function renderPropertyCharts(chartData, selectedType) {
     }
   });
 }
+
+/*async function checkScrapingStatus() {
+    try {
+
+        const response = await fetch("/scraping/status/");
+        console.log(response);
+        const data = await response.json();
+        console.log(data);
+        
+
+        const overlay = document.getElementById("scraping-popup");
+        console.log(overlay);
+        
+
+        if (data.running) {
+            overlay.style.display = "flex";
+        } else {
+            clearInterval(scrapingStatusInterval);
+            overlay.style.display = "none";
+        }
+    } catch (e) {
+        console.error("Error checking scraping status", e);
+    }
+}
+checkScrapingStatus();
+setInterval(checkScrapingStatus, 10000);*/

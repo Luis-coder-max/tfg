@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from requests import options
 from estateAgency.models import (
-    Source, Location, Property, Listing, PropertyFeature
+    Source, Location, Property, Listing, PropertyFeature, ScrapingLog
 )
 import random
 from datetime import timedelta
@@ -20,6 +20,7 @@ class Command(BaseCommand):
         Listing.objects.all().delete()
         PropertyFeature.objects.all().delete()
         Source.objects.all().delete()
+        ScrapingLog.objects.all().delete()
         self.stdout.write("Seeding database...")
 
         source, _ = Source.objects.get_or_create(
@@ -33,19 +34,15 @@ class Command(BaseCommand):
                 ("Barcelona", "Barcelona", 41.3874, 2.1686),
                 ("Valencia", "Valencia", 39.4699, -0.3763),
                 ("Sevilla", "Andalucia", 37.3891, -5.9845),
-                ("Zaragoza", "Aragon", 41.6488, -0.8891),
-                ("Badajoz", "Extremadura", 38.8794, -6.9707),
                 ("Bilbao", "Pais Vasco", 43.2630, -2.9350),
-                ("Granada", "Andalucia", 37.1773, -3.5986),
-                ("Salamanca", "Castilla y Leon", 40.9701, -5.6635),
-                ("Alicante", "Valencia", 38.3452, -0.4810),
-            ],
-            'England': [
-                ("London", "Greater London", 51.5074, -0.1278),
-                ("Manchester", "Greater Manchester", 53.4808, -2.2426),
-                ("Birmingham", "West Midlands", 52.4862, -1.8904),
             ]
         }
+        """("Zaragoza", "Aragon", 41.6488, -0.8891),
+                ("Badajoz", "Extremadura", 38.8794, -6.9707),
+                
+                ("Granada", "Andalucia", 37.1773, -3.5986),
+                ("Salamanca", "Castilla y Leon", 40.9701, -5.6635),
+                ("Alicante", "Valencia", 38.3452, -0.4810),"""
         locations = []
         for country, cities in cityGroup.items():
             for city, province, lat, lon in cities:
