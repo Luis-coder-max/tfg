@@ -203,12 +203,11 @@ async function checkScrapingStatus() {
         
 
         const overlay = document.getElementById("scraping-popup");
-        console.log(overlay);
-        
 
         if (data.running) {
             overlay.style.display = "flex";
         } else {
+            clearInterval(scrapingStatusInterval);
             overlay.style.display = "none";
         }
     } catch (e) {
