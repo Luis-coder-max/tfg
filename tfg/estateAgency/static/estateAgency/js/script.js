@@ -96,7 +96,7 @@ function renderPropertyCharts(chartData, selectedType) {
   });
 }
 
-/*async function checkScrapingStatus() {
+async function checkScrapingStatus() {
     try {
 
         const response = await fetch("/scraping/status/");
@@ -120,4 +120,4 @@ function renderPropertyCharts(chartData, selectedType) {
     }
 }
 checkScrapingStatus();
-setInterval(checkScrapingStatus, 10000);*/
+setInterval(checkScrapingStatus, 10000);
