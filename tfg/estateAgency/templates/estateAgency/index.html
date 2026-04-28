@@ -38,7 +38,7 @@
   </div>
 
   <div class="cards">
-    <article class="card">
+    <a class="card feature-card-link" href="{% url 'estateAgency:properties' %}?type=sale">
       <img src="{% static 'estateAgency/img/feature-buy.jpg' %}" alt="Vivienda en venta">
       <div class="card-content">
         <div class="card-tags">
@@ -48,9 +48,9 @@
         <h3>Comparativa de compra</h3>
         <p>Analiza viviendas en venta, precios medios y diferencias por metro cuadrado.</p>
       </div>
-    </article>
+    </a>
 
-    <article class="card">
+    <a class="card feature-card-link" href="{% url 'estateAgency:properties' %}?type=rent_long">
       <img src="{% static 'estateAgency/img/feature-rent.jpg' %}" alt="Vivienda en alquiler">
       <div class="card-content">
         <div class="card-tags">
@@ -60,9 +60,9 @@
         <h3>Alquiler de larga estancia</h3>
         <p>Consulta inmuebles orientados a estabilidad mensual y demanda sostenida.</p>
       </div>
-    </article>
+    </a>
 
-    <article class="card">
+    <a class="card feature-card-link" href="{% url 'estateAgency:properties' %}?type=rent_short">
       <img src="{% static 'estateAgency/img/feature-season.jpg' %}" alt="Vivienda de temporada">
       <div class="card-content">
         <div class="card-tags">
@@ -72,7 +72,7 @@
         <h3>Alquiler de temporada</h3>
         <p>Explora anuncios con enfoque temporal y prepara visualizaciones especificas.</p>
       </div>
-    </article>
+    </a>
   </div>
 </section>
 
