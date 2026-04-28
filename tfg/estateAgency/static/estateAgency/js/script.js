@@ -96,6 +96,103 @@ function renderPropertyCharts(chartData, selectedType) {
   });
 }
 
+function renderPropertyDetailChart(chartData, selectedType) {
+  const detailCanvas = document.getElementById("propertyDetailChart");
+  const detailTitle = document.getElementById("detailChartTitle");
+
+  if (!detailCanvas || typeof Chart === "undefined") {
+    return;
+  }
+
+  const labels = chartData.labels && chartData.labels.length ? chartData.labels : ["Actual"];
+  const prices = chartData.prices && chartData.prices.length ? chartData.prices : [0];
+  const pricesM2 = chartData.prices_m2 && chartData.prices_m2.length ? chartData.prices_m2 : [0];
+
+  let chartType = "line";
+  let title = "Evolucion del precio de venta";
+  let color = "#c45a2d";
+
+  if (selectedType === "rent_long") {
+    chartType = "bar";
+    title = "Variacion del alquiler mensual";
+    color = "#9b6b32";
+  }
+
+  if (selectedType === "rent_short") {
+    chartType = "line";
+    title = "Evolucion del alquiler de temporada";
+    color = "#b23b2f";
+  }
+
+  if (detailTitle) {
+    detailTitle.textContent = title;
+  }
+
+  new Chart(detailCanvas, {
+    type: chartType,
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Precio",
+          data: prices,
+          borderColor: color,
+          backgroundColor: "rgba(196, 90, 45, 0.18)",
+          borderWidth: 3,
+          tension: 0.35,
+          fill: selectedType !== "rent_long",
+        },
+        {
+          label: "Precio por m2",
+          data: pricesM2,
+          borderColor: "#2f6f5e",
+          backgroundColor: "rgba(47, 111, 94, 0.14)",
+          borderWidth: 2,
+          tension: 0.35,
+          yAxisID: "y1",
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: {
+        mode: "index",
+        intersect: false,
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          title: {
+            display: true,
+            text: "Precio"
+          }
+        },
+        y1: {
+          beginAtZero: false,
+          position: "right",
+          grid: {
+            drawOnChartArea: false,
+          },
+          title: {
+            display: true,
+            text: "EUR/m2"
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderPageCharts() {
+  if (window.chartData && window.selectedType) {
+    renderPropertyCharts(window.chartData, window.selectedType);
+  }
+
+  if (window.detailChartData && window.detailSelectedType) {
+    renderPropertyDetailChart(window.detailChartData, window.detailSelectedType);
+  }
+}
+
 async function checkScrapingStatus() {
     try {
 
@@ -112,12 +209,17 @@ async function checkScrapingStatus() {
         if (data.running) {
             overlay.style.display = "flex";
         } else {
-            clearInterval(scrapingStatusInterval);
             overlay.style.display = "none";
         }
     } catch (e) {
         console.error("Error checking scraping status", e);
     }
 }
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", renderPageCharts);
+} else {
+  renderPageCharts();
+}
 checkScrapingStatus();
-setInterval(checkScrapingStatus, 10000);
+const scrapingStatusInterval = setInterval(checkScrapingStatus, 10000);

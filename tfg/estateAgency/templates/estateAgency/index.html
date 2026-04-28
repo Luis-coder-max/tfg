@@ -1,95 +1,78 @@
 {% extends 'estateAgency/base.html' %}
+{% load static %}
 
 {% block content %}
 
 <section class="hero">
-  <h2>Encuentra el mejor momento para invertir</h2>
+  <p class="eyebrow">Proyecto Intermodular DAW</p>
+  <h2>Analiza el mercado inmobiliario con datos reales</h2>
+  <p class="hero-text">
+    Consulta anuncios importados, compara precios por ciudad y detecta oportunidades
+    de compra, alquiler estable o alquiler de temporada.
+  </p>
 
- <div class="search-box">
-  <select id="type">
-    <option value="sale">Compra</option>
-    <option value="rent_long">Alquiler larga estancia</option>
-    <option value="rent_short">Alquiler de temporada</option>
-  </select>
+  <div class="search-box">
+    <select id="type">
+      <option value="sale">Compra</option>
+      <option value="rent_long">Alquiler larga estancia</option>
+      <option value="rent_short">Alquiler de temporada</option>
+    </select>
 
-  <select id="city">
-      {% for location in locations %}
-        <option value="{{ location.city }}">{{ location.city }}</option>
-      {% endfor %}
-  </select>
-  <button type="text" onclick="predict()">Analizar</button>
-</div>
+    <select id="city">
+        {% for location in locations %}
+          <option value="{{ location.city }}">{{ location.city }}</option>
+        {% endfor %}
+    </select>
 
-  <div class="prediction" id="result"> </div>
-</section>
-
-<!-- COMPRA -->
-<section class="section">
-  <h2>Compra</h2>
-
-  <canvas id="grafico"></canvas>
-
-  <div class="cards">
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994">
-      <div class="card-content">
-        <h3>Inversión urbana</h3>
-        <p>Alta revalorización prevista en zonas céntricas.</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be">
-      <div class="card-content">
-        <h3>Vivienda familiar</h3>
-        <p>Estabilidad de precios con tendencia moderada.</p>
-      </div>
-    </div>
+    <button type="button" onclick="predict()">Analizar mercado</button>
   </div>
+
+  <div class="prediction" id="result"></div>
 </section>
 
-<!-- LARGA ESTANCIA -->
 <section class="section">
-  <h2>Alquiler de larga estancia</h2>
-  <div class="cards">
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1494526585095-c41746248156">
-      <div class="card-content">
-        <h3>Alta demanda</h3>
-        <p>Incremento constante en ciudades principales.</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae">
-      <div class="card-content">
-        <h3>Rentabilidad</h3>
-        <p>Buen retorno para inversores a medio plazo.</p>
-      </div>
-    </div>
+  <div class="section-heading">
+    <p class="eyebrow">Funcionalidades</p>
+    <h1>Analiza viviendas en tiempo real</h1>
+    <p>La aplicacion combina scraping, base de datos, visualizacion de datos y analisis por vivienda.</p>
   </div>
-</section>
 
-<!-- TEMPORADA -->
-<section class="section">
-  <h2>Alquiler de temporada</h2>
   <div class="cards">
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85">
+    <article class="card">
+      <img src="{% static 'estateAgency/img/feature-buy.jpg' %}" alt="Vivienda en venta">
       <div class="card-content">
-        <h3>Zonas turísticas</h3>
-        <p>Alta rentabilidad en verano e invierno.</p>
+        <div class="card-tags">
+          <span>Compra</span>
+          <span>Precio/m2</span>
+        </div>
+        <h3>Comparativa de compra</h3>
+        <p>Analiza viviendas en venta, precios medios y diferencias por metro cuadrado.</p>
       </div>
-    </div>
+    </article>
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5">
-      {# <img src="{% static 'estateAgency/img/nombreimagen.jpg' %}"> #}
+    <article class="card">
+      <img src="{% static 'estateAgency/img/feature-rent.jpg' %}" alt="Vivienda en alquiler">
       <div class="card-content">
-        <h3>Oportunidades</h3>
-        <p>Crecimiento fuerte en destinos emergentes.</p>
+        <div class="card-tags">
+          <span>Alquiler</span>
+          <span>Mensual</span>
+        </div>
+        <h3>Alquiler de larga estancia</h3>
+        <p>Consulta inmuebles orientados a estabilidad mensual y demanda sostenida.</p>
       </div>
-    </div>
+    </article>
+
+    <article class="card">
+      <img src="{% static 'estateAgency/img/feature-season.jpg' %}" alt="Vivienda de temporada">
+      <div class="card-content">
+        <div class="card-tags">
+          <span>Temporada</span>
+          <span>Analisis</span>
+        </div>
+        <h3>Alquiler de temporada</h3>
+        <p>Explora anuncios con enfoque temporal y prepara visualizaciones especificas.</p>
+      </div>
+    </article>
   </div>
 </section>
 

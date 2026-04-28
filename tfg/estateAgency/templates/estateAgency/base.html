@@ -6,29 +6,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Predicciones Inmobiliarias{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'estateAgency/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'estateAgency/css/styles.css' %}?v=3">
 </head>
 
 <body>
 
-<div id="scraping-popup" style="display:none;">
+<div id="scraping-popup">
     Actualizando viviendas en la base de datos...
     Algunas funciones pueden estar limitadas.
 </div>
 
-
 <header>
-  <h1>Predicciones Inmobiliarias</h1>
+  <a class="brand" href="{% url 'estateAgency:index' %}">
+    <span class="brand-mark">PI</span>
+    <span>
+      <strong>Predicciones Inmobiliarias</strong>
+      <small>Analisis del mercado con datos reales</small>
+    </span>
+  </a>
+  <nav class="top-nav">
+    <a href="{% url 'estateAgency:index' %}">Inicio</a>
+    <a href="{% url 'estateAgency:properties' %}?type=sale">Compra</a>
+    <a href="{% url 'estateAgency:properties' %}?type=rent_long">Alquiler</a>
+  </nav>
 </header>
 
 {% block content %}
 {% endblock %}
 
 <footer>
-  <p>© 2026 Predicciones Inmobiliarias</p>
+  <p>&copy; 2026 Predicciones Inmobiliarias</p>
+  <p>Proyecto Intermodular DAW</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'estateAgency/js/script.js' %}"></script>
+<script src="{% static 'estateAgency/js/script.js' %}?v=3"></script>
 </body>
 </html>

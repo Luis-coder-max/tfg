@@ -26,4 +26,6 @@ class PropertyDTO:
     province: Optional[str] = None
     city: Optional[str] = None
     price: Optional[Decimal] = None
+    price_per_m2: Optional[Decimal] = None
+    image_path: str = ""
     

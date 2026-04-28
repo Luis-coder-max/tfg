@@ -144,3 +144,21 @@ def get_market_summary(flag, city=None):
         avg_price_m2=Avg("price_per_m2"),
         total=Count("id"),
     )
+
+
+def get_property_detail_chart_data(property_obj):
+    listings = property_obj.listings.order_by("scraped_at")
+    labels = []
+    prices = []
+    prices_m2 = []
+
+    for listing in listings:
+        labels.append(listing.scraped_at.strftime("%d/%m/%Y"))
+        prices.append(float(listing.price or 0))
+        prices_m2.append(float(listing.price_per_m2 or 0))
+
+    return {
+        "labels": labels,
+        "prices": prices,
+        "prices_m2": prices_m2,
+    }
