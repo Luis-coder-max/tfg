@@ -12,31 +12,57 @@ SCRAPING_LOCK_KEY = "pisos_scraping_running"
 SCRAPING_LAST_CHECK_KEY = "pisos_scraping_last_check"
 
 
-def run_scraping():
-    try:
-        call_command(
+def pisos_com_scraping_group():
+    call_command(
             "import_pisos",
             operation="sale",
             limit=15,
             max_duplicates=5,
         )
-        call_command(
-            "import_pisos",
-            operation="rent",
-            rental_type="short",
-            limit=15,
-            max_duplicates=5,
-        )
-        call_command(
-            "import_pisos",
-            operation="rent",
-            rental_type="long",
-            limit=15,
-            max_duplicates=5,
-        )
+    call_command(
+        "import_pisos",
+        operation="rent",
+        rental_type="short",
+        limit=15,
+        max_duplicates=5,
+    )
+    call_command(
+        "import_pisos",
+        operation="rent",
+        rental_type="long",
+        limit=15,
+        max_duplicates=5,
+    )
+    
+def fotocasa_scraping_group():
+    call_command(
+        "import_fotocasa",
+        operation="sale",
+        limit=15,
+        max_duplicates=5,
+    )
+    call_command(
+        "import_fotocasa",
+        operation="rent",
+        rental_type="short",
+        limit=15,
+        max_duplicates=5,
+    )
+    call_command(
+        "import_fotocasa",
+        operation="rent",
+        rental_type="long",
+        limit=15,
+        max_duplicates=5,
+    )
+
+
+def run_scraping():
+    try:
+        #fotocasa_scraping_group()
+        pisos_com_scraping_group()
     finally:
         cache.delete(SCRAPING_LOCK_KEY)
-
 
 class AutoScrapingMiddleware:
     def __init__(self, get_response):
