@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from requests import options
 from estateAgency.models import (
-    Source, Location, Property, Listing, PropertyFeature, ScrapingLog
+    Source, Location, Property, Listing, ScrapingLog
 )
 import random
 from datetime import timedelta
@@ -18,7 +18,6 @@ class Command(BaseCommand):
         Property.objects.all().delete()
         Location.objects.all().delete()
         Listing.objects.all().delete()
-        PropertyFeature.objects.all().delete()
         Source.objects.all().delete()
         ScrapingLog.objects.all().delete()
         self.stdout.write("Seeding database...")
@@ -93,18 +92,6 @@ class Command(BaseCommand):
                 )
 
                 properties.append(prop)
-
-                # 🟠 FEATURES
-                PropertyFeature.objects.create(
-                    property=prop,
-                    has_elevator=random.choice([True, False]),
-                    has_garage=random.choice([True, False]),
-                    has_terrace=random.choice([True, False]),
-                    has_pool=random.choice([True, False]),
-                    condition_status=random.choice([
-                        "new", "good", "renovation", "needs_renovation"
-                    ])
-                )
 
                 base_price = random.randint(100000, 500000)
 

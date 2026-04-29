@@ -99,25 +99,6 @@ class Listing(models.Model):
     def __str__(self):
         return f"{self.property.title} - {self.price}€"
 
-class PropertyFeature(models.Model):
-    property = models.OneToOneField(Property, on_delete=models.CASCADE, related_name="features")
-
-    has_elevator = models.BooleanField(null=True, blank=True)
-    has_garage = models.BooleanField(null=True, blank=True)
-    has_terrace = models.BooleanField(null=True, blank=True)
-    has_pool = models.BooleanField(null=True, blank=True)
-
-    CONDITION_CHOICES = [
-        ('new', 'New'),
-        ('good', 'Good'),
-        ('renovation', 'Renovation'),
-        ('needs_renovation', 'Needs Renovation'),
-    ]
-
-    condition_status = models.CharField(max_length=20, choices=CONDITION_CHOICES, null=True, blank=True)
-
-    def __str__(self):
-        return f"Features of {self.property.title}"
 
 class Prediction(models.Model):
     property = models.ForeignKey(Property, null=True, blank=True, on_delete=models.SET_NULL)

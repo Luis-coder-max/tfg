@@ -9,7 +9,6 @@ import re
 
 PROPERTY_IMAGE_PATTERN = re.compile(r"^estateAgency/img/(flat|house|unknown)-\d{2}\.jpg$")
 
-# Create your views here.
 class IndexView(generic.TemplateView):
     template_name = "estateAgency/index.html"
     def get_context_data(self, **kwargs):

@@ -14,7 +14,6 @@ def get_all_locations():
             province=loc.province,
             latitude=float(loc.latitude) if loc.latitude else None,
             longitude=float(loc.longitude) if loc.longitude else None,
-            #property_count= 0 #TODO: calcular cantidad de propiedades asociadas a esta ubicación
         )
         dtos.append(dto)
 
