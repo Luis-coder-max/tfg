@@ -1,6 +1,6 @@
 {% extends "estateAgency/base.html" %}
 {% load static %}
-
+{% load currency %}
 {% block title %}Comparador de viviendas | Predicciones Inmobiliarias{% endblock %}
 
 {% block content %}
@@ -27,7 +27,7 @@
             <th>m2</th>
             <th>EUR/m2</th>
             <th>Habitaciones</th>
-            <th>Banos</th>
+            <th>Baños</th>
             <th>Media zona</th>
             <th>Puntuacion</th>
           </tr>
@@ -37,16 +37,16 @@
             <tr class="{% if best and item.id == best.id %}best-row{% endif %}">
               <td>
                 <div class="compare-home">
-                  <img src="{% static item.image_path %}" alt="{{ item.title }}">
+                  <img src="{{ item.image_url }}" alt="{{ item.title }}">
                   <div>
                     <strong>{{ item.title }}</strong>
                     <span>{{ item.city }}</span>
-                    <a href="{% url 'estateAgency:property_detail' item.id %}?image={{ item.image_path|urlencode }}">Ver ficha</a>
+                    <a href="{% url 'estateAgency:property_detail' item.id %}?image={{ item.image_url|urlencode }}">Ver ficha</a>
                   </div>
                 </div>
               </td>
               <td>{{ item.operation_label }}</td>
-              <td>{{ item.price|floatformat:0 }} EUR</td>
+              <td>{{ item.price|eur }} EUR </td>
               <td>{{ item.size_m2|floatformat:0 }}</td>
               <td>{{ item.price_per_m2|floatformat:0 }} EUR/m2</td>
               <td>{{ item.rooms|default:"-" }}</td>

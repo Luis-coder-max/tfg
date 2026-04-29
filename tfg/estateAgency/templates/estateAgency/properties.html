@@ -1,6 +1,6 @@
 {% extends "estateAgency/base.html" %}
 {% load static %}
-
+{% load currency %}
 {% block content %}
 
 <section class="section results-section">
@@ -13,12 +13,12 @@
   <div class="stats">
     <div class="stat-card">
       <span>Precio medio</span>
-      <strong>{{ market_summary.avg_price|default:0|floatformat:2 }} EUR</strong>
+      <strong>{{ market_summary.avg_price|eur|default:"0" }} EUR</strong>
     </div>
 
     <div class="stat-card">
       <span>Precio medio/m2</span>
-      <strong>{{ market_summary.avg_price_m2|default:0|floatformat:2 }} EUR/m2</strong>
+      <strong>{{ market_summary.avg_price_m2|eur|default:"0" }} EUR/m2</strong>
     </div>
 
     <div class="stat-card">
@@ -55,8 +55,8 @@
           <input type="checkbox" name="selected_ids" value="{{ p.id }}">
           <span>Comparar</span>
         </label>
-        <a class="property-card-link" href="{% url 'estateAgency:property_detail' p.id %}?image={{ p.image_path|urlencode }}">
-          <img src="{% static p.image_path %}" alt="{{ p.title }}">
+        <a class="property-card-link" href="{% url 'estateAgency:property_detail' p.id %}?image={{ p.image_url|urlencode }}">
+          <img src="{{ p.image_url }}" alt="{{ p.title }}">
           <div class="card-content">
             <div class="card-tags">
               <span>{% if selected_type == "sale" %}Compra{% elif selected_type == "rent_short" %}Temporada{% else %}Alquiler largo{% endif %}</span>
@@ -64,7 +64,7 @@
             </div>
             <h3>{{ p.title }}</h3>
             <div class="property-facts">
-              <span>{{ p.price|floatformat:0 }} EUR</span>
+              <span>{{ p.price|eur }} EUR</span>
               <span>{{ p.size_m2|floatformat:0 }} m2</span>
               <span>{{ p.rooms|default:"-" }} hab.</span>
               <span>{{ p.price_per_m2|default:0|floatformat:0 }} EUR/m2</span>

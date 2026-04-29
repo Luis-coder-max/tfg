@@ -1,13 +1,13 @@
 {% extends "estateAgency/base.html" %}
 {% load static %}
-
+{% load currency %}
 {% block title %}{{ property.title }} | Predicciones Inmobiliarias{% endblock %}
 
 {% block content %}
 
 <section class="detail-hero">
   <div class="detail-image">
-    <img src="{% static image_path %}" alt="{{ property.title }}">
+    <img src="{{ property.image_url }}" alt="{{ property.title }}">
   </div>
 
   <article class="detail-summary">
@@ -15,7 +15,7 @@
     <h1>{{ property.title }}</h1>
 
     {% if latest_listing %}
-      <div class="detail-price">{{ latest_listing.price|floatformat:0 }} EUR</div>
+      <div class="detail-price">{{ latest_listing.price|eur }} EUR</div>
     {% endif %}
 
     <p>
@@ -50,7 +50,7 @@
       <span>Tipo: {{ property.property_type }}</span>
       <span>Metros: {{ property.size_m2|floatformat:0 }} m2</span>
       <span>Habitaciones: {{ property.rooms|default:"-" }}</span>
-      <span>Banos: {{ property.bathrooms|default:"-" }}</span>
+      <span>Baños: {{ property.bathrooms|default:"-" }}</span>
       <span>Fuente: {{ property.source.name }}</span>
     </div>
   </article>

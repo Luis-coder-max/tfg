@@ -149,6 +149,7 @@ class Command(BaseCommand):
                                 "bathrooms": item.bathrooms,
                                 "floor": item.floor,
                                 "size_m2": item.size_m2,
+                                "image_url": item.image_url,
                             }
                         )
 

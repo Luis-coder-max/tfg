@@ -1,7 +1,6 @@
 from django.db.models import Prefetch
 
 from estateAgency.models import AreaStats, Listing, Property
-from estateAgency.services.propertyService import get_property_list_image_path
 
 
 def _operation_data(property_obj):
@@ -33,18 +32,7 @@ def _normalize(value, minimum, maximum, fallback):
 
     return (value - minimum) / (maximum - minimum)
 
-
-def _image_key(property_obj):
-    if property_obj.property_type in ["flat", "studio", "penthouse", "duplex"]:
-        return "flat"
-
-    if property_obj.property_type == "house":
-        return "house"
-
-    return "unknown"
-
-
-def _build_item(property_obj, image_position):
+def _build_item(property_obj):
     latest_listing = property_obj.latest_listings[0] if property_obj.latest_listings else None
     area_stats = _latest_area_stats(property_obj)
     price = float(latest_listing.price) if latest_listing else 0
@@ -76,7 +64,7 @@ def _build_item(property_obj, image_position):
         "price_per_m2": price_per_m2,
         "market_avg_m2": market_avg_m2,
         "market_delta_pct": market_delta_pct,
-        "image_path": get_property_list_image_path(image_position, property_obj.property_type),
+        "image_url": property_obj.image_url,
         "score": 0,
         "score_reason": "",
     }
@@ -102,17 +90,13 @@ def compare_properties(property_ids):
 
     properties_by_id = {property_obj.id: property_obj for property_obj in queryset}
     items = []
-    image_positions = {}
 
     for property_id in ids:
         if property_id not in properties_by_id:
             continue
 
         property_obj = properties_by_id[property_id]
-        image_key = _image_key(property_obj)
-        image_position = image_positions.get(image_key, 0)
-        image_positions[image_key] = image_position + 1
-        items.append(_build_item(property_obj, image_position))
+        items.append(_build_item(property_obj))
 
     if len(items) < 2:
         return {

@@ -76,13 +76,6 @@ class PropertyDetailView(generic.TemplateView):
         context["chart_data"] = json.dumps(chart_data)
         context["selected_type"] = selected_type
         context["operation_label"] = operation_label
-        requested_image_path = self.request.GET.get("image", "")
-        if PROPERTY_IMAGE_PATTERN.match(requested_image_path):
-            image_path = requested_image_path
-        else:
-            image_path = propertyService.get_property_image_path(property_obj.id, property_obj.property_type)
-
-        context["image_path"] = image_path
 
         return context
 

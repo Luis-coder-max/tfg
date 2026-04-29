@@ -15,6 +15,7 @@ class ScrapedProperty:
     rooms: int | None
     bathrooms: int | None
     floor: str | None
+    image_url: str | None
     city: str
 
 
@@ -65,6 +66,7 @@ class PisosScraper:
         rooms = self.extract_rooms(text)
         bathrooms = self.extract_bathrooms(text)
         floor = self.extract_floor(text)
+        image_url = self.extract_main_image(soup)
 
         return ScrapedProperty(
             title=title,
@@ -75,6 +77,7 @@ class PisosScraper:
             bathrooms=bathrooms,
             floor=floor,
             city=city,
+            image_url=image_url,
         )
 
     def extract_title(self, soup):
@@ -118,6 +121,21 @@ class PisosScraper:
         for word in ["bajo", "ático", "entresuelo"]:
             if word in text.lower():
                 return word
+
+        return None
+    
+    def extract_main_image(self, soup):
+        og_image = soup.select_one("meta[property='og:image']")
+        if og_image and og_image.get("content"):
+            return og_image["content"].strip()
+
+        twitter_image = soup.select_one("meta[name='twitter:image']")
+        if twitter_image and twitter_image.get("content"):
+            return twitter_image["content"].strip()
+
+        img = soup.select_one("img[src]")
+        if img and img.get("src"):
+            return urljoin(self.BASE_URL, img["src"])
 
         return None
 

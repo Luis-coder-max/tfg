@@ -11,6 +11,7 @@ class PropertyDTO:
     external_id: str = ""
     source_id: Optional[int] = None
     location_id: Optional[int] = None
+    image_url: Optional[str] = None
     url: str = ""
     title: str = ""
     description: Optional[str] = None
@@ -27,5 +28,4 @@ class PropertyDTO:
     city: Optional[str] = None
     price: Optional[Decimal] = None
     price_per_m2: Optional[Decimal] = None
-    image_path: str = ""
     

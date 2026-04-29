@@ -59,7 +59,7 @@ class Property(models.Model):
 
     property_type = models.CharField(max_length=20, choices=PROPERTY_TYPE_CHOICES)
     operation_type = models.CharField(max_length=10, choices=OPERATION_TYPE_CHOICES)
-
+    image_url = models.URLField(max_length=1000, null=True, blank=True)
     rooms = models.IntegerField(null=True, blank=True)
     bathrooms = models.IntegerField(null=True, blank=True)
     size_m2 = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
