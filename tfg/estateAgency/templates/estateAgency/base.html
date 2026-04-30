@@ -11,9 +11,20 @@
 
 <body>
 
-<div id="scraping-popup">
-    Creando base de datos con anuncios reales... Esto puede tardar unos minutos. Algunas funciones pueden estar limitadas.
+<div id="scraping-popup" class="scraping-popup hidden">
+  <div class="scraping-popup-header">
+    <span>⚠️ Aviso</span>
+    <button type="button" id="scraping-popup-close">×</button>
+  </div>
+
+  <div class="scraping-popup-body">
+    Creando base de datos con anuncios reales...<br>
+    Esto puede tardar unos minutos.<br>
+    Algunas funciones pueden estar limitadas.
+  </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
 
 <header>
   <a class="brand" href="{% url 'estateAgency:index' %}">

@@ -192,33 +192,74 @@ function renderPageCharts() {
     renderPropertyDetailChart(window.detailChartData, window.detailSelectedType);
   }
 }
-
-async function checkScrapingStatus() {
-    try {
-
-        const response = await fetch("/scraping/status/");
-        console.log(response);
-        const data = await response.json();
-        console.log(data);
-        
-
-        const overlay = document.getElementById("scraping-popup");
-
-        if (data.running) {
-            overlay.style.display = "flex";
-        } else {
-            clearInterval(scrapingStatusInterval);
-            overlay.style.display = "none";
-        }
-    } catch (e) {
-        console.error("Error checking scraping status", e);
-    }
-}
-
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", renderPageCharts);
 } else {
   renderPageCharts();
 }
+
+let scrapingPopupManuallyClosed = false;
+let scrapingStatusInterval = null;
+
+const popup = document.getElementById("scraping-popup");
+const closeBtn = document.getElementById("scraping-popup-close");
+
+function showScrapingPopup() {
+  if (!scrapingPopupManuallyClosed) {
+    popup.classList.remove("hidden");
+  }
+}
+
+function hideScrapingPopup() {
+  popup.classList.add("hidden");
+}
+
+closeBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  scrapingPopupManuallyClosed = true;
+  hideScrapingPopup();
+});
+
+async function checkScrapingStatus() {
+  try {
+    const response = await fetch("/scraping/status/");
+    const data = await response.json();
+
+    if (data.running) {
+      showScrapingPopup();
+    } else {
+      if (scrapingStatusInterval) {
+        clearInterval(scrapingStatusInterval);
+        scrapingStatusInterval = null;
+      }
+
+      scrapingPopupManuallyClosed = false;
+      hideScrapingPopup();
+    }
+  } catch (e) {
+    console.error("Error checking scraping status", e);
+  }
+}
+
+interact("#scraping-popup").draggable({
+  allowFrom: ".scraping-popup-header",
+  ignoreFrom: "#scraping-popup-close",
+  listeners: {
+    move(event) {
+      const target = event.target;
+
+      const left = parseFloat(target.style.left || target.offsetLeft);
+      const top = parseFloat(target.style.top || target.offsetTop);
+
+      target.style.left = `${left + event.dx}px`;
+      target.style.top = `${top + event.dy}px`;
+      target.style.right = "auto";
+      target.style.bottom = "auto";
+    }
+  }
+});
+
 checkScrapingStatus();
-const scrapingStatusInterval = setInterval(checkScrapingStatus, 10000);
+scrapingStatusInterval = setInterval(checkScrapingStatus, 10000);
