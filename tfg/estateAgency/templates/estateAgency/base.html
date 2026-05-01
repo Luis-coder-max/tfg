@@ -10,6 +10,13 @@
 </head>
 
 <body>
+<input type="hidden" id="isPropertyDatabaseEmpty" value="{{ isPropertyDatabaseEmpty|yesno:'true,false' }}">
+
+<div id="empty-scraping-popup">
+    Creando base de datos con anuncios reales...<br>
+    Esto puede tardar unos minutos.<br>
+    La aplicación puede estar limitada temporalmente.
+</div>
 
 <div id="scraping-popup" class="scraping-popup hidden">
   <div class="scraping-popup-header">

@@ -13,12 +13,14 @@ SCRAPING_LAST_CHECK_KEY = "pisos_scraping_last_check"
 
 
 def pisos_com_scraping_group():
+    from .services import chartService
     call_command(
             "import_pisos",
             operation="sale",
             limit=15,
             max_duplicates=5,
         )
+    chartService.create_market_summary("sale")
     call_command(
         "import_pisos",
         operation="rent",
@@ -26,6 +28,7 @@ def pisos_com_scraping_group():
         limit=15,
         max_duplicates=5,
     )
+    chartService.create_market_summary("rent_short")
     call_command(
         "import_pisos",
         operation="rent",
@@ -33,6 +36,7 @@ def pisos_com_scraping_group():
         limit=15,
         max_duplicates=5,
     )
+    chartService.create_market_summary("rent_long")
     
 def fotocasa_scraping_group():
     call_command(
@@ -55,12 +59,35 @@ def fotocasa_scraping_group():
         limit=15,
         max_duplicates=5,
     )
+    
+def thinkspain_scraping_group():
+    call_command(
+        "import_thinkspain",
+        operation="sale",
+        limit=15,
+        max_duplicates=5,
+    )
+    call_command(
+        "import_thinkspain",
+        operation="rent",
+        rental_type="short",
+        limit=15,
+        max_duplicates=5,
+    )
+    call_command(
+        "import_thinkspain",
+        operation="rent",
+        rental_type="long",
+        limit=15,
+        max_duplicates=5,
+    )
 
 
 def run_scraping():
     try:
         #fotocasa_scraping_group()
         pisos_com_scraping_group()
+        #thinkspain_scraping_group()
     finally:
         cache.delete(SCRAPING_LOCK_KEY)
 

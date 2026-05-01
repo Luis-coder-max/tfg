@@ -203,6 +203,8 @@ let scrapingStatusInterval = null;
 
 const popup = document.getElementById("scraping-popup");
 const closeBtn = document.getElementById("scraping-popup-close");
+let isDatabaseEmpty = document.getElementById("isPropertyDatabaseEmpty").value === "true";
+const emptyDatabasePopup = document.getElementById("empty-scraping-popup");
 
 function showScrapingPopup() {
   if (!scrapingPopupManuallyClosed) {
@@ -228,13 +230,17 @@ async function checkScrapingStatus() {
     const data = await response.json();
 
     if (data.running) {
-      showScrapingPopup();
+      if (isDatabaseEmpty) {
+        emptyDatabasePopup.style.display = "flex";
+      } else { 
+        showScrapingPopup();
+      }
     } else {
+      emptyDatabasePopup.style.display = "none";
       if (scrapingStatusInterval) {
         clearInterval(scrapingStatusInterval);
         scrapingStatusInterval = null;
       }
-
       scrapingPopupManuallyClosed = false;
       hideScrapingPopup();
     }

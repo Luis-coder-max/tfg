@@ -12,10 +12,12 @@ PROPERTY_IMAGE_PATTERN = re.compile(r"^estateAgency/img/(flat|house|unknown)-\d{
 class IndexView(generic.TemplateView):
     template_name = "estateAgency/index.html"
     def get_context_data(self, **kwargs):
+        isPropertyDatabaseEmpty = not Property.objects.exists()
         context = super().get_context_data(**kwargs)
 
         locations = locationService.get_all_locations()
         context["locations"] = locations
+        context["isPropertyDatabaseEmpty"] = isPropertyDatabaseEmpty
 
         return context
     
@@ -24,6 +26,7 @@ class PropertiesView(generic.TemplateView):
     template_name = "estateAgency/properties.html"
 
     def get_context_data(self, **kwargs):
+        isPropertyDatabaseEmpty = not Property.objects.exists()
         context = super().get_context_data(**kwargs)
 
         flag = self.request.GET.get("type")
@@ -43,6 +46,7 @@ class PropertiesView(generic.TemplateView):
         context["chart_data"] = json.dumps(chart_data)
         context["market_summary"] = market_summary
         context["locations"] = locationService.get_all_locations()
+        context["isPropertyDatabaseEmpty"] = isPropertyDatabaseEmpty
 
         return context
 
@@ -51,6 +55,7 @@ class PropertyDetailView(generic.TemplateView):
     template_name = "estateAgency/property_detail.html"
 
     def get_context_data(self, **kwargs):
+        isPropertyDatabaseEmpty = not Property.objects.exists()
         context = super().get_context_data(**kwargs)
 
         property_obj = get_object_or_404(
@@ -75,7 +80,7 @@ class PropertyDetailView(generic.TemplateView):
         context["chart_data"] = json.dumps(chart_data)
         context["selected_type"] = selected_type
         context["operation_label"] = operation_label
-
+        context["isPropertyDatabaseEmpty"] = isPropertyDatabaseEmpty
         return context
 
 class ComparePropertiesView(generic.TemplateView):
@@ -83,6 +88,7 @@ class ComparePropertiesView(generic.TemplateView):
     template_name = "estateAgency/compare.html"
 
     def get_context_data(self, **kwargs):
+        isPropertyDatabaseEmpty = not Property.objects.exists()
         context = super().get_context_data(**kwargs)
 
         selected_ids = self.request.GET.getlist("selected_ids")
@@ -95,6 +101,7 @@ class ComparePropertiesView(generic.TemplateView):
         context["items"] = comparison["items"]
         context["best"] = comparison["best"]
         context["conclusion"] = comparison["conclusion"]
+        context["isPropertyDatabaseEmpty"] = isPropertyDatabaseEmpty
 
         return context
 

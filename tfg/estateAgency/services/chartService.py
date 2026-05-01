@@ -85,6 +85,34 @@ def get_chart_data_by_operation(flag, city=None):
         "rooms": rooms,
     }
 
+def create_market_summary(flag):
+    operation_type, rental_type = _operation_values_from_flag(flag)
+    locations = Location.objects.all()
+    for location in locations:
+        if location:
+            summary = Listing.objects.select_related(
+                "property",
+                "property__location",
+            ).filter(property__location=location)
+
+            summary = _filter_listings_by_operation(summary, flag).aggregate(
+                avg_price=Avg("price"),
+                avg_price_m2=Avg("price_per_m2"),
+                total=Count("id"),
+            )
+
+            if summary["total"]:
+                AreaStats.objects.update_or_create(
+                    location=location,
+                    date=timezone.localdate(),
+                    operation_type=operation_type,
+                    rental_type=rental_type,
+                    defaults={
+                        "avg_price": summary["avg_price"] or 0,
+                        "avg_price_m2": summary["avg_price_m2"] or 0,
+                        "num_properties": summary["total"],
+                    },
+                )
 
 def get_market_summary(flag, city=None):
     operation_type, rental_type = _operation_values_from_flag(flag)
